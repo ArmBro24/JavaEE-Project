@@ -69,7 +69,7 @@ To enable Kafka-based messaging, you **must run the Kafka stack before anything 
 Make sure your **PostgreSQL 16** is running.
 
 - Database: `PaymentSB`
-- User: `postgres`
+- User: `arm`
 - Password: `1234` (adjust in `application.yml` if changed)
 - Host: `localhost:5432`
 
