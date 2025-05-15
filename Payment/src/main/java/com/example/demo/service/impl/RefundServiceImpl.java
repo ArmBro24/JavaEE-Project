@@ -43,7 +43,6 @@ public class RefundServiceImpl implements RefundService {
         refund.setStatus(refundSuccess ? "COMPLETED" : "FAILED");
         refundRepository.save(refund);
 
-        // Publish Kafka event (stubbed here, replace with actual Kafka logic)
         publishRefundEvent(refund);
 
         return RefundResponse.builder()
@@ -57,7 +56,6 @@ public class RefundServiceImpl implements RefundService {
     }
 
     private void publishRefundEvent(Refund refund) {
-        // Stubbed Kafka event publishing logic for refund
         System.out.println("Publishing refund event for refund ID: " + refund.getId());
     }
 }

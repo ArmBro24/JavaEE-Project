@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 @Builder
 public class PaymentCompletedEvent {
     private Long paymentId;
+    private Long bookingId;
     private String status;
     private BigDecimal amount;
     private String payment_method;

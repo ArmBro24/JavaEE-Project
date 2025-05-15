@@ -89,6 +89,7 @@ public class PaymentServiceImpl implements PaymentService {
         if ("COMPLETED".equals(payment.getStatus())) {
             PaymentCompletedEvent event = PaymentCompletedEvent.builder()
                     .paymentId(payment.getId())
+                    .bookingId(payment.getBookingId())
                     .status(payment.getStatus())
                     .amount(payment.getAmount())
                     .payment_method(payment.getPayment_method())
@@ -107,6 +108,7 @@ public class PaymentServiceImpl implements PaymentService {
         } else {
             PaymentFailedEvent event = PaymentFailedEvent.builder()
                     .paymentId(payment.getId())
+                    .bookingId(payment.getBookingId())
                     .status(payment.getStatus())
                     .amount(payment.getAmount())
                     .payment_method(payment.getPayment_method())
