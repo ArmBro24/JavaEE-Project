@@ -1,15 +1,18 @@
 # JavaSpring Microservices
 
-This repository is a backend microservice architecture built with **Spring Boot**, **Apache Kafka**, and **PostgreSQL**, centered around a `PaymentService` for handling transactions and event-driven communication.
-
-> More services like `BookingService` will be added soon.
+This repository is a complete backend microservice architecture built with **Spring Boot**, **Apache Kafka**, **Spring Cloud**, and **PostgreSQL**, centered around a `PaymentService`, `BookingService`, and `LoyaltyService`, fully integrated via **Eureka Service Discovery** and **API Gateway**.
 
 ---
 
-## Microservices in This Repo
+## Microservices Included
 
-- `PaymentService` → Handles payment initiation, refunding, and transaction status updates  
-  > Publishes Kafka events: `PaymentCompletedEvent`, `PaymentFailedEvent`
+| Service           | Description                                                                 |
+|------------------|-----------------------------------------------------------------------------|
+| `BookingService` | Initiates a booking and publishes Kafka events to be consumed by Payment    |
+| `PaymentService` | Handles payments, refunds, transaction records, and event publishing        |
+| `LoyaltyService` | Listens for payment events and accrues loyalty points                       |
+| `EurekaService`  | Centralized service registry (discovery layer)                              |
+| `APIGateway`     | Routes all client-facing API requests via a single port (`8080`)            |
 
 ---
 
@@ -18,82 +21,81 @@ This repository is a backend microservice architecture built with **Spring Boot*
 | Layer           | Stack                                     |
 |----------------|--------------------------------------------|
 | Language        | Java 17                                   |
-| Framework       | Spring Boot 3.x                           |
-| Messaging       | Apache Kafka (via Docker Compose)         |
-| Database        | PostgreSQL 16 (`PaymentSB`)               |
+| Framework       | Spring Boot 3.4.4                         |
+| Messaging       | Apache Kafka                              |
+| Service Registry| Spring Cloud Netflix Eureka               |
+| Routing         | Spring Cloud Gateway                      |
+| Database        | PostgreSQL 16                             |
 | Broker Support  | Zookeeper (via Docker)                    |
-| Event Format    | JSON payloads over Kafka topics           |
 | Dependency Mgmt | Maven                                     |
+| Container Infra | Docker Compose                            |
 
 ---
 
 ## Kafka Setup (Docker)
 
-To enable Kafka-based messaging, you **must run the Kafka stack before anything else**:
+To enable event-driven communication, **start Kafka before running services**.
 
-### ▶️ Steps to Run Kafka:
+### Run Kafka:
 
-1. Open `kafka/docker-compose.yaml` inside IntelliJ
-2. Right-click > `Run 'docker-compose.yaml'`
-3. Wait until **Zookeeper** and **Kafka** containers are up in Docker Desktop
+1. Open `kafka/docker-compose.yaml` in IntelliJ or terminal
+2. Run via IntelliJ “Compose Deployment” or:
+   ```bash
+   docker-compose -f kafka/docker-compose.yaml up
 
-> ⚠️ After a while, the containers might stop working. In that case:
-> - Open Docker Desktop
-> - Delete the Kafka and Zookeeper containers manually
-> - Re-run the YAML in IntelliJ
+If Kafka crashes later:
 
----
+Restart containers in Docker Desktop or
 
-## PaymentService Behavior
+Remove existing ones and rerun
 
-### Endpoints
+API Gateway Routing (Port 8080)
+Path	Routed To
+/api/v1/bookings/**	BookingService
+/api/v1/payments/**	PaymentService
+/api/v1/loyalty/**	LoyaltyService
 
-| Method | Endpoint                     | Description                         |
-|--------|------------------------------|-------------------------------------|
-| POST   | `/api/v1/payments`           | Initiate a new payment              |
-| GET    | `/api/v1/payments/{id}`      | Retrieve payment by ID              |
-| POST   | `/api/v1/payments/refund`    | Trigger a refund for a transaction  |
+All endpoints are accessible from a single port (8080) — thanks to Eureka + Gateway.
 
-### Kafka Events
+Kafka Events Flow
+From	To	Event Type
+BookingService	PaymentService	BookingCreatedEvent
+PaymentService	LoyaltyService	PaymentCompletedEvent
+PaymentService	(Optional)	RefundCompletedEvent
 
-| Event Type             | Trigger                              |
-|------------------------|--------------------------------------|
-| `PaymentCompletedEvent`| After successful payment              |
-| `PaymentFailedEvent`   | After failed attempt                  |
-| `RefundCompletedEvent` | After successful refund (future use) |
+Database Configuration
+Each service uses its own PostgreSQL DB:
 
----
+Service	Database Name	Port
+BookingService	BookingDB	5432
+PaymentService	PaymentSB	5432
+LoyaltyService	LoyaltyDB	5432
 
-## Database Configuration
+Default creds:
 
-Make sure your **PostgreSQL 16** is running.
+Username: arm
 
-- Database: `PaymentSB`
-- User: `arm`
-- Password: `1234` (adjust in `application.yml` if changed)
-- Host: `localhost:5432`
+Password: 1234
 
-> Tables will be auto-created via JPA (`payments`, `refunds`)
+Modify in application.properties if needed
 
----
+✅ Requirements
+Docker Desktop
 
-## Future Services (Planned)
+IntelliJ IDEA
 
-- `BookingService` → Will trigger events consumed by `PaymentService`
-- `LoyaltyService` → Will be notified via Kafka on payment or refund
+PostgreSQL 16
 
----
+Java 17
 
-## Requirements
+Maven 3.9.x+
 
-- Docker Desktop 
-- IntelliJ IDEA 
-- PostgreSQL 16 installed 
-- Java 17 
-- Maven 
+Notes
+Eureka must be started before other services
 
----
+Gateway must be started last to ensure all routing works
 
-## Author
+Kafka must be running for Booking → Payment → Loyalty flow
 
-Built by **ArmBro24**  
+Built by ArmBro24
+Microservices, Kafka, Eureka & Gateway — fully alive on port 8080
