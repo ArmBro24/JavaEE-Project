@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: APIGATEWAY
+  cloud:
+    discovery:
+      enabled: true
+    gateway:
+      routes:
+        - id: booking-service
+          uri: lb://BOOKINGSERVICEEXAM
+          predicates:
+            - Path=/api/v1/bookings/**
+        - id: payment-service
+          uri: lb://PAYMENTSERVICEEXAM
+          predicates:
+            - Path=/api/v1/payments/**
+        - id: loyalty-service
+          uri: lb://LOTALTYSERVICEEXAM
+          predicates:
+            - Path=/api/v1/loyalty/**
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8755/eureka
