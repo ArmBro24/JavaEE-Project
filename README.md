@@ -96,5 +96,4 @@ Make sure your **PostgreSQL 16** is running.
 
 ## Author
 
-Built with 🔥 by **ArmBro24**  
-“Where microservices fly, and bugs die.” ☠️
+Built by **ArmBro24**  
